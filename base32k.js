@@ -87,12 +87,12 @@ context.base32k = {
         out.push(0xE000 + p - 27484);
       }
     }
-    out.push(0x2400 + (i - bits));  // terminator
+    out.push(0x240F - (i - bits));  // terminator
     return fromCharCodes(out);
   }
   ,
   decode: function(s) {
-    var killbits = s.charCodeAt(s.length - 1) - 0x2400;
+    var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
     var out = [];
     for (var p, q, r, i = 0, len = s.length - 1; i < len; i++) {
       p = s.charCodeAt(i);
@@ -114,7 +114,7 @@ context.base32k = {
         out[q + 1] |= p << (49 - r);
       }
     }
-    if (killbits > 0) {
+    if (tailbits < 15) {
       out.length--;
     }
     return out;
