@@ -8,10 +8,21 @@ Based on comments by [Perry A. Caro](mailto:caro@adobe.com),
 [here](http://lists.xml.org/archives/xml-dev/200307/msg00505.html) and
 [here](http://lists.xml.org/archives/xml-dev/200307/msg00507.html).
 
+Usage
+-----
+
+    base32k.encode([1,2,3]);
+    // => "㐀㐀告㐀䐀㐀㨀␆"
+
+    base32k.decode(base32k.encode([1,2,3]));
+    // => [1, 2, 3]
+
+Comparison
+----------
 The following results show the maximum number of 4-byte ints that can be
 stored in localStorage on `Google Chrome 19.0.1084.52 m`. Json encoding
 is variable-width, making smaller integers more efficient, but even in
-the ideal case of all zeros the benefit over base32k is marginal.
+the best case of all zeros its benefit is marginal.
 
     json (large integers)        950,276 bytes stored
     json (small integers)      1,785,860 bytes stored
