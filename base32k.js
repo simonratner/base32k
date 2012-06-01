@@ -93,6 +93,9 @@ context.base32k = {
   ,
   decode: function(s) {
     var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
+    if (tailbits < 1 || tailbits > 15) {
+      throw "Invalid encoding";
+    }
     var out = [];
     for (var p, q, r, i = 0, len = s.length - 1; i < len; i++) {
       p = s.charCodeAt(i);
@@ -105,7 +108,7 @@ context.base32k = {
       } else if (p >= 0xE000 && p <= 0xF4A3) {
         p -= 0xE000 - 27484;
       } else {
-        throw "Invalid encoding U+" + p;
+        throw "Invalid encoding U+" + ("00" + p.toString(16).toUpperCase()).slice(-4);
       }
       if (r <= 17) {
         out[q] |= p << (17 - r);
