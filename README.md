@@ -4,9 +4,9 @@ base32k
 Efficiently pack binary data into UTF-16 strings, with encoding overhead
 approaching 6%.
 
-Based on comments by Perry A. Caro [caro@adobe.com]:
-  * http://lists.xml.org/archives/xml-dev/200307/msg00505.html
-  * http://lists.xml.org/archives/xml-dev/200307/msg00507.html
+Based on comments by [Perry A. Caro](caro@adobe.com)
+[here](http://lists.xml.org/archives/xml-dev/200307/msg00505.html) and
+[here](http://lists.xml.org/archives/xml-dev/200307/msg00507.html).
 
 The following results show the maximum number of 4-byte ints that can be
 stored in localStorage on `Google Chrome 19.0.1084.52 m`. Json encoding
