@@ -1,17 +1,17 @@
 base32k
 =======
 
-Efficiently pack binary data into UTF-16 strings.
-Encoding overhead approaches 6%.
+Efficiently pack binary data into UTF-16 strings, with encoding overhead
+approaching 6%.
 
 Based on comments by Perry A. Caro [caro@adobe.com]:
-    http://lists.xml.org/archives/xml-dev/200307/msg00505.html
-    http://lists.xml.org/archives/xml-dev/200307/msg00507.html
+  * http://lists.xml.org/archives/xml-dev/200307/msg00505.html
+  * http://lists.xml.org/archives/xml-dev/200307/msg00507.html
 
-The following results show the maximum number of 4-byte integers that can be
-stored in localStorage on `Google Chrome 19.0.1084.52 m`. Json encoding is
-variable-width, making smaller integers more efficient, but even in the
-ideal case of all zeros the benefit over base32k is marginal.
+The following results show the maximum number of 4-byte ints that can be
+stored in localStorage on `Google Chrome 19.0.1084.52 m`. Json encoding
+is variable-width, making smaller integers more efficient, but even in
+the ideal case of all zeros the benefit over base32k is marginal.
 
     json (large integers)        950,276 bytes stored
     json (small integers)      1,785,860 bytes stored
