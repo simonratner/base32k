@@ -48,36 +48,64 @@
       var tests = [
       {
         name: "json",
-        f: function(i) { return i }
+        enc: function(i) { return JSON.stringify(i) },
+        dec: function(i) { return JSON.parse(i) }
       },
       {
         name: "base64 (ascii string)",
-        f: function(data) {
+        enc: function(data) {
           return btoa(data.map(function(i) {
             return String.fromCharCode(0xff & (i >>> 24), 0xff & (i >>> 16), 0xff & (i >>> 8), 0xff & i)
           }).join(''))
+        },
+        dec: function(data) {
+          data = atob(data);
+          var out = [];
+          for (var i = 0, len = data.length; i < len; i += 4) {
+            out.push((data.charCodeAt(i+0) << 24) | (data.charCodeAt(i+1) << 16) | (data.charCodeAt(i+2) << 8) | data.charCodeAt(i+3));
+          }
+          return out;
         }
       },
       {
         name: "base256 (ascii string)",
-        f: function(data) {
+        enc: function(data) {
           return (data.map(function(i) {
             return String.fromCharCode(0xff & (i >>> 24), 0xff & (i >>> 16), 0xff & (i >>> 8), 0xff & i)
           }).join(''))
+        },
+        dec: function(data) {
+          var out = [];
+          for (var i = 0, len = data.length; i < len; i += 4) {
+            out.push((data.charCodeAt(i+0) << 24) | (data.charCodeAt(i+1) << 16) | (data.charCodeAt(i+2) << 8) | data.charCodeAt(i+3));
+          }
+          return out;
         }
       },
       {
         name: "base32k (utf-16 string)",
-        f: base32k.encode
+        enc: base32k.encode,
+        dec: base32k.decode
       }
       ];
 
       function iterate(test, k, step, max) {
+        // store
         try {
-          localStorage["data"] = test.f(test.data.slice(0, k));
+          localStorage["data"] = test.enc(test.data.slice(0, k));
         } catch (error) {
           test.done(true);
           return false;
+        }
+        // verify
+        var data = test.dec(localStorage["data"]);
+        for (var i = 0, len = data.length; i < len; i++) {
+          if (data[i] != test.data[i]) {
+            throw "Verification failed: " + data[i] + " != " + test.data[i];
+          }
+        }
+        if (i != k) {
+          throw "Verification failed";
         }
         test.progress(k);
         if (k + step <= max) {
@@ -95,7 +123,8 @@
         var table = document.getElementById(data + "-tests");
         tests.forEach(function(t, i) {
           var test = {
-            f: t.f,
+            enc: t.enc,
+            dec: t.dec,
             data: window[data],
             progress: function(k) {
               document.getElementById(data + "-result-" + i).innerHTML = k * 4 + " bytes stored... ";
