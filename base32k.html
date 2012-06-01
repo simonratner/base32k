@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>base32k</title>
+    <style>
+      table, td {
+        font-family: sans-serif;
+        padding: 4px;
+        border: 1px solid silver;
+        border-collapse: collapse;
+      }
+      small {
+        color: silver;
+      }
+    </style>
+    <script type="text/javascript" charset="utf-8" src="base32k.js"></script>
+  </head>
+
+  <body>
+    <h1>Large Integer Tests</h1>
+    <table>
+      <tbody id="large-tests">
+      </tbody>
+    </table>
+
+    <h1>Small Integer Tests</h1>
+    <table>
+      <tbody id="small-tests">
+      </tbody>
+    </table>
+
+    <h1>Zero Tests</h1>
+    <table>
+      <tbody id="zero-tests">
+      </tbody>
+    </table>
+
+    <script>
+      var large = new Array(1024 * 1024 * 10);
+      var small = new Array(1024 * 1024 * 10);
+      var zero = new Array(1024 * 1024 * 10);
+      for (var i = 0; i < 1024 * 1024 * 10; i++) {
+        large[i] = (Math.random() * 0xffffffff) | 0;
+        small[i] = (Math.random() * 0xffff) | 0;
+        zero[i] = 0;
+      }
+
+      var tests = [
+      {
+        name: "json",
+        f: function(i) { return i }
+      },
+      {
+        name: "base64 (ascii string)",
+        f: function(data) {
+          return btoa(data.map(function(i) {
+            return String.fromCharCode(0xff & (i >>> 24), 0xff & (i >>> 16), 0xff & (i >>> 8), 0xff & i)
+          }).join(''))
+        }
+      },
+      {
+        name: "base256 (ascii string)",
+        f: function(data) {
+          return (data.map(function(i) {
+            return String.fromCharCode(0xff & (i >>> 24), 0xff & (i >>> 16), 0xff & (i >>> 8), 0xff & i)
+          }).join(''))
+        }
+      },
+      {
+        name: "base32k (utf-16 string)",
+        f: base32k.encode
+      }
+      ];
+
+      function iterate(test, k, step, max) {
+        try {
+          localStorage["data"] = test.f(test.data.slice(0, k));
+        } catch (error) {
+          test.done(true);
+          return false;
+        }
+        test.progress(k);
+        if (k + step <= max) {
+          setTimeout(function() { iterate(test, k + step, step, max) }, 1);
+        } else {
+          test.done();
+        }
+      }
+
+      function run(test) {
+        iterate(test, 1, 4 * 1024, 10 * 1024 * 1024);
+      }
+
+      ["large", "small", "zero"].forEach(function(data) {
+        var table = document.getElementById(data + "-tests");
+        tests.forEach(function(t, i) {
+          var test = {
+            f: t.f,
+            data: window[data],
+            progress: function(k) {
+              document.getElementById(data + "-result-" + i).innerHTML = k * 4 + " bytes stored... ";
+            },
+            done: function(exhausted) {
+              document.getElementById(data + "-result-" + i).innerHTML += exhausted ? "done!" : "need moar data!";
+              document.getElementById(data + "-run-" + i).disabled = false;
+            }
+          };
+          table.insertAdjacentHTML("beforeend", '<tr>' +
+            '<td>' + t.name + '<br><small id="' + data + '-result-' + i + '"></small></td>' +
+            '<td><button id="' + data + '-run-' + i + '">Run</button></td>');
+          document.getElementById(data + "-run-" + i).onclick = function() {
+            this.disabled = true;
+            run(test);
+          };
+        });
+      });
+    </script>
+  </body>
+</html>
+
