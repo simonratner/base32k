@@ -1,7 +1,9 @@
+// base32k.js / https://github.com/simonratner/base32k
+// Copyright (C) 2012 Simon Ratner, distributed under the MIT license.
+
+(function(context){
+
 /*
- *  base32k.js
- *  https://github.com/simonratner/base32k
- *
  *  Javascript implementation of base32k encoding, used to efficiently pack
  *  binary data into javascript's UTF-16 strings.
  *
@@ -51,8 +53,6 @@
  *  As for all of the text characters, the data bits are read from most
  *  significant (0x4000) to least significant (0x0001).
  */
-
-!function(context){
 
 // Work around javascript's argument limit.
 // See: http://webreflection.blogspot.com/2011/07/about-javascript-apply-arguments-limit.html
@@ -181,4 +181,4 @@ context.base32k = {
   }
 }
 
-}(this);
+})(this);
