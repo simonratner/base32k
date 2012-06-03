@@ -67,6 +67,30 @@ var fromCharCodes = (function(fromCharCode, maxargs) {
   };
 }(String.fromCharCode, 2048));
 
+// Convert a Unicode code point to a 15-bit int
+var u2i = function(u) {
+  if (u >= 0x3400 && u <= 0x4DB5) {
+    return u - 0x3400;
+  } else if (u >= 0x4E00 && u <= 0x9FA5) {
+    return u - (0x4E00 - 6582);
+  } else if (u >= 0xE000 && u <= 0xF4A3) {
+    return u - (0xE000 - 27484);
+  } else {
+    throw "Invalid encoding U+" + ("000" + u.toString(16).toUpperCase()).slice(-4);
+  }
+};
+
+// Convert a 15-bit int to a Unicode code point
+var i2u = function(i) {
+  if (i < 6582) {
+    return 0x3400 + i;
+  } else if (i < 27484) {
+    return 0x4E00 + i - 6582;
+  } else {
+    return 0xE000 + i - 27484;
+  }
+};
+
 context.base32k = {
   encode: function(a) {
     var bits = a.length * 32;
@@ -79,13 +103,28 @@ context.base32k = {
       } else {
         p = (0x7FFF & (a[q] << (r - 17))) + (0x7FFF & (a[q + 1] >>> (49 - r)));
       }
-      if (p < 6582) {
-        out.push(0x3400 + p);
-      } else if (p < 27484) {
-        out.push(0x4E00 + p - 6582);
+      out.push(i2u(p));
+    }
+    out.push(0x240F - (i - bits));  // terminator
+    return fromCharCodes(out);
+  }
+  ,
+  encodeBytes: function(a) {
+    var bits = a.length * 8;
+    var at = typeof a == "string" ?
+        function(i) { return a.charCodeAt(i) } :
+        function(i) { return a[i] };
+    var out = [];
+    for (var p, q, r, i = 0; i < bits; i += 15) {
+      q = (i / 8) | 0;  // force to int; Math.floor also works
+      r = (i % 8);
+      p = (at(q) << (7 + r));
+      if (r == 0) {
+        p |= (at(q + 1) >>> 1);
       } else {
-        out.push(0xE000 + p - 27484);
+        p |= (at(q + 1) << (r - 1)) | (at(q + 2) >>> (9 - r));
       }
+      out.push(i2u(p & 0x7FFF));
     }
     out.push(0x240F - (i - bits));  // terminator
     return fromCharCodes(out);
@@ -98,18 +137,9 @@ context.base32k = {
     }
     var out = [];
     for (var p, q, r, i = 0, len = s.length - 1; i < len; i++) {
-      p = s.charCodeAt(i);
+      p = u2i(s.charCodeAt(i));
       q = ((i * 15) / 32) | 0;  // force to int; Math.floor also works
       r = ((i * 15) % 32);
-      if (p >= 0x3400 && p <= 0x4DB5) {
-        p -= 0x3400;
-      } else if (p >= 0x4E00 && p <= 0x9FA5) {
-        p -= 0x4E00 - 6582;
-      } else if (p >= 0xE000 && p <= 0xF4A3) {
-        p -= 0xE000 - 27484;
-      } else {
-        throw "Invalid encoding U+" + ("00" + p.toString(16).toUpperCase()).slice(-4);
-      }
       if (r <= 17) {
         out[q] |= p << (17 - r);
       } else {
@@ -117,10 +147,37 @@ context.base32k = {
         out[q + 1] |= p << (49 - r);
       }
     }
-    if (tailbits < 15) {
+    if (r <= 17) {
+      out[q] &= 0xFFFFFFFF << (32 - tailbits - r);
+    } else if (tailbits > (32 - r)) {
+      out[q + 1] &= 0xFFFFFFFF << (64 - tailbits - r);
+    } else {
+      out[q] &= 0xFFFFFFFF << (32 - tailbits - r);
       out.length--;
     }
     return out;
+  }
+  ,
+  decodeBytes: function(s) {
+    var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
+    if (tailbits < 1 || tailbits > 15) {
+      throw "Invalid encoding";
+    }
+    var out = [];
+    for (var p, q, r, i = 0, len = s.length - 1; i < len; i++) {
+      p = u2i(s.charCodeAt(i));
+      q = ((i * 15) / 8) | 0;  // force to int; Math.floor also works
+      r = ((i * 15) % 8);
+      out[q] |= 0xFF & (p >>> (7 + r));
+      if (r == 0) {
+        out[q + 1] |= 0xFF & (p << 1);
+      } else {
+        out[q + 1] |= 0xFF & (p >>> (r - 1));
+        out[q + 2] |= 0xFF & (p << (9 - r));
+      }
+    }
+    out.length = ((s.length - 2) * 15 + tailbits) / 8;
+    return fromCharCodes(out);
   }
 }
 
