@@ -101,7 +101,7 @@ context.base32k = {
       if (r <= 17) {
         p = (0x7FFF & (a[q] >>> (17 - r)));
       } else {
-        p = (0x7FFF & (a[q] << (r - 17))) + (0x7FFF & (a[q + 1] >>> (49 - r)));
+        p = (0x7FFF & (a[q] << (r - 17))) | (0x7FFF & (a[q + 1] >>> (49 - r)));
       }
       out.push(i2u(p));
     }
