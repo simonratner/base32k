@@ -86,6 +86,11 @@
         name: "base32k (utf-16 string)",
         enc: base32k.encode,
         dec: base32k.decode
+      },
+      {
+        name: "base32k (packed json)",
+        enc: function(i) { return base32k.encodeBytes(JSON.stringify(i)) },
+        dec: function(i) { return JSON.parse(base32k.decodeBytes(i)) }
       }
       ];
 

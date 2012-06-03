@@ -17,17 +17,30 @@ Usage
     base32k.decode(base32k.encode([1, 2, 3]));
     // => [1, 2, 3]
 
+    base32k.decodeBytes(base32k.encodeBytes("Hello world!"));
+    // => "Hello world!"
+
 Comparison
 ----------
 The following results show the maximum number of 4-byte ints that can be
-stored in localStorage on `Google Chrome 19.0.1084.52 m`. Json encoding
+stored in localStorage on `Google Chrome 19.0.1084.52 m`. JSON encoding
 is variable-width, making smaller integers more efficient, but even in
 the best case of all zeros its benefit is marginal.
 
-    json (large integers)      950,276 bytes stored
-    json (small integers)    1,785,860 bytes stored
-    json (zeros)             5,226,500 bytes stored
-    base64 (ascii string)    1,949,700 bytes stored (×2.66 overhead)
-    base256 (ascii string)   2,605,060 bytes stored (×2.00 overhead)
-    base32k (utf-16 string)  4,898,820 bytes stored (×1.06 overhead)
+    base64                                1,949,700 bytes (×2.66 overhead)
+    base256                               2,605,060 bytes (×2.00 overhead)
+    base32k                               4,898,820 bytes (×1.06 overhead)
 
+    json (large integers)                   950,276 bytes equiv.
+    json (small integers)                 1,785,860 bytes equiv.
+    json (zeros)                          5,226,500 bytes equiv.
+
+    base32k packed json (large integers)  1,785,860 bytes equiv.
+    base32k packed json (small integers)  3,358,724 bytes equiv.
+    base32k packed json (zeros)           9,814,020 bytes equiv.
+
+Packed JSON packs 15 bytes into eight utf-16 characters, roughly doubling
+the efficiency over ascii-only JSON; useful when encoding complex objects,
+as long as they do not contain unicode strings.
+
+`TODO:` Speed tests.
