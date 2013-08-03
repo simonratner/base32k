@@ -1,8 +1,6 @@
 // base32k.js / https://github.com/simonratner/base32k
 // Copyright (C) 2012 Simon Ratner, distributed under the MIT license.
-
 goog.provide('base32k');
-
 
 /*
  *  Javascript implementation of base32k encoding, used to efficiently pack
@@ -57,8 +55,8 @@ goog.provide('base32k');
 
 // Work around javascript's argument limit.
 // See: http://webreflection.blogspot.com/2011/07/about-javascript-apply-arguments-limit.html
-var fromCharCodes = (function(fromCharCode, maxargs) {
-  return function(code) {
+var fromCharCodes = (function (fromCharCode, maxargs) {
+  return function (code) {
     typeof code == "number" && (code = [code]);
     var parts = [];
     for (var i = 0, len = code.length; i < len; i += maxargs) {
@@ -69,7 +67,7 @@ var fromCharCodes = (function(fromCharCode, maxargs) {
 }(String.fromCharCode, 2048));
 
 // Convert a Unicode code point to a 15-bit int
-var u2i = function(u) {
+var u2i = function (u) {
   if (u >= 0x3400 && u <= 0x4DB5) {
     return u - 0x3400;
   } else if (u >= 0x4E00 && u <= 0x9FA5) {
@@ -82,7 +80,7 @@ var u2i = function(u) {
 };
 
 // Convert a 15-bit int to a Unicode code point
-var i2u = function(i) {
+var i2u = function (i) {
   if (i < 6582) {
     return 0x3400 + i;
   } else if (i < 27484) {
@@ -93,11 +91,11 @@ var i2u = function(i) {
 };
 
 base32k = {
-  encode: function(a) {
+  encode: function (a) {
     var bits = a.length * 32;
     var out = [];
     for (var p, q, r, i = 0; i < bits; i += 15) {
-      q = (i / 32) | 0;  // force to int; Math.floor also works
+      q = (i / 32) | 0; // force to int; Math.floor also works
       r = (i % 32);
       if (r <= 17) {
         p = (0x7FFF & (a[q] >>> (17 - r)));
@@ -106,18 +104,21 @@ base32k = {
       }
       out.push(i2u(p));
     }
-    out.push(0x240F - (i - bits));  // terminator
+    out.push(0x240F - (i - bits)); // terminator
     return fromCharCodes(out);
-  }
-  ,
-  encodeBytes: function(a) {
+  },
+  encodeBytes: function (a) {
     var bits = a.length * 8;
     var at = typeof a == "string" ?
-        function(i) { return a.charCodeAt(i) } :
-        function(i) { return a[i] };
+        function (i) {
+          return a.charCodeAt(i)
+      } :
+        function (i) {
+          return a[i]
+      };
     var out = [];
     for (var p, q, r, i = 0; i < bits; i += 15) {
-      q = (i / 8) | 0;  // force to int; Math.floor also works
+      q = (i / 8) | 0; // force to int; Math.floor also works
       r = (i % 8);
       p = (at(q) << (7 + r));
       if (r == 0) {
@@ -127,11 +128,10 @@ base32k = {
       }
       out.push(i2u(p & 0x7FFF));
     }
-    out.push(0x240F - (i - bits));  // terminator
+    out.push(0x240F - (i - bits)); // terminator
     return fromCharCodes(out);
-  }
-  ,
-  decode: function(s) {
+  },
+  decode: function (s) {
     var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
     if (tailbits < 1 || tailbits > 15) {
       throw "Invalid encoding";
@@ -139,7 +139,7 @@ base32k = {
     var out = [];
     for (var p, q, r, i = 0, len = s.length - 1; i < len; i++) {
       p = u2i(s.charCodeAt(i));
-      q = ((i * 15) / 32) | 0;  // force to int; Math.floor also works
+      q = ((i * 15) / 32) | 0; // force to int; Math.floor also works
       r = ((i * 15) % 32);
       if (r <= 17) {
         out[q] |= p << (17 - r);
@@ -157,9 +157,8 @@ base32k = {
       out.length--;
     }
     return out;
-  }
-  ,
-  decodeBytes: function(s) {
+  },
+  decodeBytes: function (s) {
     var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
     if (tailbits < 1 || tailbits > 15) {
       throw "Invalid encoding";
@@ -167,7 +166,7 @@ base32k = {
     var out = [];
     for (var p, q, r, i = 0, len = s.length - 1; i < len; i++) {
       p = u2i(s.charCodeAt(i));
-      q = ((i * 15) / 8) | 0;  // force to int; Math.floor also works
+      q = ((i * 15) / 8) | 0; // force to int; Math.floor also works
       r = ((i * 15) % 8);
       out[q] |= 0xFF & (p >>> (7 + r));
       if (r == 0) {
