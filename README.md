@@ -1,6 +1,8 @@
 base32k
 =======
 
+[![npm](http://img.shields.io/npm/v/base32k.svg?style=flat)](https://www.npmjs.org/package/base32k)
+
 Efficiently pack binary data into UTF-16 strings, with encoding overhead
 approaching 6%.
 

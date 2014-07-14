@@ -13,7 +13,7 @@
         color: silver;
       }
     </style>
-    <script type="text/javascript" charset="utf-8" src="base32k.js"></script>
+    <script type="text/javascript" charset="utf-8" src="base32k.min.js"></script>
   </head>
 
   <body>
@@ -97,13 +97,13 @@
       function iterate(test, k, step, max) {
         // store
         try {
-          localStorage["data"] = test.enc(test.data.slice(0, k));
+          sessionStorage.setItem("data", test.enc(test.data.slice(0, k)));
         } catch (error) {
           test.done(true);
           return false;
         }
         // verify
-        var data = test.dec(localStorage["data"]);
+        var data = test.dec(sessionStorage.getItem("data"));
         for (var i = 0, len = data.length; i < len; i++) {
           if (data[i] != test.data[i]) {
             throw "Verification failed: " + data[i] + " != " + test.data[i];
@@ -121,7 +121,7 @@
       }
 
       function run(test) {
-        iterate(test, 1, 4 * 1024, 10 * 1024 * 1024);
+        iterate(test, 4 * 1024, 4 * 1024, 10 * 1024 * 1024);
       }
 
       ["large", "small", "zero"].forEach(function(data) {
@@ -137,6 +137,7 @@
             done: function(exhausted) {
               document.getElementById(data + "-result-" + i).innerHTML += exhausted ? "done!" : "need moar data!";
               document.getElementById(data + "-run-" + i).disabled = false;
+              sessionStorage.removeItem("data");
             }
           };
           table.insertAdjacentHTML("beforeend", '<tr>' +
@@ -151,4 +152,3 @@
     </script>
   </body>
 </html>
-

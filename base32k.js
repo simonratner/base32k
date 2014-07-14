@@ -1,5 +1,5 @@
-// base32k.js / https://github.com/simonratner/base32k
-// Copyright (C) 2012 Simon Ratner, distributed under the MIT license.
+/** @preserve base32k.js / https://github.com/simonratner/base32k
+ ** Copyright (C) 2012 Simon Ratner, distributed under the MIT license. */
 
 (function(context){
 
@@ -91,8 +91,7 @@ var i2u = function(i) {
   }
 };
 
-context.base32k = {
-  encode: function(a) {
+context.encode = function(a) {
     var bits = a.length * 32;
     var out = [];
     for (var p, q, r, i = 0; i < bits; i += 15) {
@@ -107,9 +106,9 @@ context.base32k = {
     }
     out.push(0x240F - (i - bits));  // terminator
     return fromCharCodes(out);
-  }
-  ,
-  encodeBytes: function(a) {
+  };
+
+context.encodeBytes = function(a) {
     var bits = a.length * 8;
     var at = typeof a == "string" ?
         function(i) { return a.charCodeAt(i) } :
@@ -128,9 +127,9 @@ context.base32k = {
     }
     out.push(0x240F - (i - bits));  // terminator
     return fromCharCodes(out);
-  }
-  ,
-  decode: function(s) {
+  };
+
+context.decode = function(s) {
     var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
     if (tailbits < 1 || tailbits > 15) {
       throw "Invalid encoding";
@@ -156,9 +155,9 @@ context.base32k = {
       out.length--;
     }
     return out;
-  }
-  ,
-  decodeBytes: function(s) {
+  };
+
+context.decodeBytes = function(s) {
     var tailbits = s.charCodeAt(s.length - 1) - 0x2400;
     if (tailbits < 1 || tailbits > 15) {
       throw "Invalid encoding";
@@ -178,7 +177,6 @@ context.base32k = {
     }
     out.length = ((s.length - 2) * 15 + tailbits) / 8;
     return fromCharCodes(out);
-  }
-}
+  };
 
-})(this);
+})((typeof module != "undefined" && module.exports) || (this.base32k = {}));

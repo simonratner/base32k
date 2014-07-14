@@ -1,0 +1,38 @@
+{
+  "name": "base32k",
+  "version": "0.1.0",
+  "description": "Efficiently pack binary data into UTF-16 strings.",
+
+  "author": "Simon Ratner (https://github.com/simonratner)",
+
+  "keywords": [
+    "base32k",
+    "encode",
+    "decode"
+  ],
+
+  "dependencies": {
+  },
+
+  "optionalDependencies": {
+  },
+
+  "devDependencies": {
+    "uglify-js": "~2.4"
+  },
+
+  "main": "./base32k.js",
+
+  "homepage": "https://github.com/simonratner/base32k",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/simonratner/base32k.git"
+  },
+  "bugs": "https://github.com/simonratner/base32k/issues",
+
+  "license": "MIT",
+
+  "scripts": {
+    "minify": "./node_modules/.bin/uglifyjs base32k.js --mangle --comments --compress --output base32k.min.js"
+  }
+}
